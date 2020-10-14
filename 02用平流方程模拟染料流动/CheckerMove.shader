@@ -1,9 +1,8 @@
-﻿Shader "Unlit/ConvectionShader"
+﻿Shader "Unlit/CheckerMove"
 {
     Properties
     {
         _MainTex ("Texture", 2D) = "white" {}
-        _CheckerTex("Texture", 2D) = "white" {}
     }
     SubShader
     {
@@ -34,9 +33,7 @@
             };
 
             sampler2D _MainTex;
-            sampler2D _CheckerTex;
             float4 _MainTex_ST;
-            uniform float _ArrowRotation[256];
 
             v2f vert (appdata v)
             {
@@ -47,30 +44,13 @@
                 return o;
             }
 
-            fixed4 frag (v2f i) : SV_Target
+            fixed4 frag(v2f i) : SV_Target
             {
-                float uvx, uvy;
+                // sample the texture
 
-            int _TexelNumber = 16;
-            int intuvx = floor(i.uv.x * _TexelNumber);
-            int intuvy = floor(i.uv.y * _TexelNumber);
-            float rad = _ArrowRotation[intuvy * _TexelNumber + intuvx] * 3.1415927f / 180.0f;
-            float cosRes = cos(rad);
-            float sinRes = sin(rad);
-
-            uvx = i.uv.x - 1.0f / 256.0f * cosRes;
-            uvy = i.uv.y - 1.0f / 256.0f * sinRes;
-            float4 col;
-                if (uvx < 0)
-                {
-                    uvx += 1.0f;
-                    col  = tex2D(_CheckerTex, float2(uvx, uvy));
-                }
-                else
-                {
-                    col =  tex2D(_MainTex, float2(uvx, uvy));
-                }
-                
+                float uvx = i.uv.x - 1.0f / 256.0f;
+                if (uvx < 0)  uvx += 1.0f;
+                fixed4 col = tex2D(_MainTex, float2(uvx,i.uv.y));
                 return col;
             }
             ENDCG

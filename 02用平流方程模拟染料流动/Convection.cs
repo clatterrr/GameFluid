@@ -12,12 +12,16 @@ public class Convection : MonoBehaviour
 
     public Material ConvectionMat;//用于绘制平流
     public Material CheckerInit;//用于绘制初始棋盘格
+    public Material CheckerMove;//用于绘制初始棋盘格
+
+    public RenderTexture RtPreChecker;//棋盘格前一帧
+    public RenderTexture RtNowChecker;//棋盘格这一帧
 
     public RenderTexture RtPreFrame;//前一帧图像
     public RenderTexture RtNowFrame;//本帧图像
     void Start()
     {
-        Application.targetFrameRate = 10;
+        Application.targetFrameRate = 100;
         float QuadSize = PlaneSize / QuadNumber;
 
         for (int j = 0; j < QuadNumber; j++)
@@ -40,13 +44,18 @@ public class Convection : MonoBehaviour
             }
         }
         Graphics.Blit(null, RtPreFrame, CheckerInit);//绘制初始的黑白棋盘格纹理
+        Graphics.Blit(RtPreFrame, RtPreChecker);
     }
     private void Update()
     {
         ConvectionMat.SetFloatArray("_ArrowRotation", ArrowRotation);
+        ConvectionMat.SetTexture("_CheckerTex", RtNowChecker);
     }
     private void OnRenderImage(RenderTexture source, RenderTexture destination)
     {
+        Graphics.Blit(RtPreChecker, RtNowChecker, CheckerMove);//移动棋盘格
+        Graphics.Blit(RtNowChecker, RtPreChecker);
+
         Graphics.Blit(RtPreFrame, RtNowFrame, ConvectionMat);//移动之前的纹理
         Graphics.Blit(RtNowFrame, RtPreFrame);
         Graphics.Blit(source, destination);
