@@ -37,6 +37,7 @@
             sampler2D _CheckerTex;
             float4 _MainTex_ST;
             uniform float _ArrowRotation[256];
+            uniform float _ArrowScale[256];
 
             v2f vert (appdata v)
             {
@@ -55,11 +56,21 @@
             int intuvx = floor(i.uv.x * _TexelNumber);
             int intuvy = floor(i.uv.y * _TexelNumber);
             float rad = _ArrowRotation[intuvy * _TexelNumber + intuvx] * 3.1415927f / 180.0f;
+            float velocity = _ArrowScale[intuvy * _TexelNumber + intuvx];
             float cosRes = cos(rad);
             float sinRes = sin(rad);
+            bool HighRes = false;
+            if (HighRes)
+            {
+                int cosRange07 = floor(cosRes * 8.0f);
+                int sinRange07 = floor(sinRes * 8.0f);
+                cosRes = cosRange07 / 8.0f; //保证是1/8的倍数，从1/8到7/8
+                sinRes = sinRange07 / 8.0f;
+            }
 
-            uvx = i.uv.x - 1.0f / 256.0f * cosRes;
-            uvy = i.uv.y - 1.0f / 256.0f * sinRes;
+
+            uvx = i.uv.x - 1.0f / 256.0f * cosRes * velocity;
+            uvy = i.uv.y - 1.0f / 256.0f * sinRes * velocity;
             float4 col;
                 if (uvx < 0)
                 {
